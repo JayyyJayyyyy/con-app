@@ -1,20 +1,7 @@
 from flask import Flask, render_template, request
-from roman_converter import convert_to_roman
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/convert', methods=['POST'])
-def convert():
-    number = int(request.form['number'])
-    roman_numeral = convert_to_roman(number)
-    return render_template('result.html', number=number, roman_numeral=roman_numeral)
-
-if __name__ == '__main__':
-    app.run(debug=True)
 
 # convert the given number to the roman numerals
 def convert(decimal_num):
@@ -69,3 +56,23 @@ Please enter a number between 1 and 3999, inclusively : """
     else:
         # then set to invalid flag to True to show warning
         is_invalid = True
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    result = None
+    if request.method == 'POST':
+        user_input = request.form['number']
+        try:
+            user_number = int(user_input)
+            result = convert(user_number)
+        except ValueError:
+            result = None
+
+    return render_template('index.html')
+
+@app.route('/result', methods=['POST'])
+def result():
+    result = request.form.get('result')
+    return render_template('result.html', result=result)
+
+if __name__ == '__main__':
+    app.run(debug=True)
